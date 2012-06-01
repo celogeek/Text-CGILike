@@ -7,8 +7,6 @@ use warnings;
 use Moo;
 use Text::Format;
 
-my $TF = Text::Format->new({firstIndent => 0, bodyIndent => 0});
-
 # VERSION
 
 our (@ISA, @EXPORT, %EXPORT_TAGS);
@@ -16,13 +14,15 @@ our (@ISA, @EXPORT, %EXPORT_TAGS);
 BEGIN {
     require Exporter;
 
-    my @html2 = qw/start_html end_html h1/;
+    my @html2 = qw/start_html end_html hr h1 ul li br/;
+    my @netscape = qw/center/;
 
     @ISA = qw(Exporter);
-    @EXPORT = (@html2);
+    @EXPORT = (@html2, @netscape);
     %EXPORT_TAGS = (
         'html2' => [@html2],
-        'standard' => [@html2]
+        'netscape' => [@netscape],
+        'standard' => [@EXPORT]
     );
 }
 
@@ -50,6 +50,28 @@ sub hr {
     return "#"x($self->columns)."\n";
 }
 
+sub br {
+    my ($self) = _self_or_default(@_);
+    return "\n";
+}
+
+sub center {
+    my ($self, $text) = _self_or_default(@_);
+    return $self->_center('','', $text);
+}
+
+sub ul {
+    my ($self, @li) = _self_or_default(@_);
+    return join("", @li);
+}
+
+sub li {
+    my ($self, $li) = _self_or_default(@_);
+    my $TF = Text::Format->new({firstIndent => 0, bodyIndent => 2, columns => $self->columns - 2});
+    return "- " . $TF->format($li);
+}
+
+
 ### PRIVATE ###
 
 sub _self_or_default {
@@ -69,7 +91,8 @@ sub _center {
     $right = "" unless defined $right;
 
     my $size = $self->columns - length($left) - length($right);
-    $TF->columns($size);
+    my $TF = Text::Format->new({firstIndent => 0, bodyIndent => 0, columns => $size});
+
     my @texts = $TF->format($text);
     return join("\n", map {
         $_ = $TF->center($_);
