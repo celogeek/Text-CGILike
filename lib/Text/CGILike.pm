@@ -26,7 +26,7 @@ BEGIN {
     );
 }
 
-=h1 DEFAULT_CLASS
+=attr DEFAULT_CLASS
 
 To change columns using keywords
 
@@ -143,3 +143,16 @@ sub _left {
 }
 
 1;
+
+__END__
+
+=head1 SEE ALSO
+
+L<CGI>
+
+=head1 BUGS
+
+Any bugs or evolution can be submit here :
+
+L<Github|https://github.com/geistteufel/Text-CGILike>
+
