@@ -26,22 +26,50 @@ BEGIN {
     );
 }
 
-my $CLASS_SINGLE;
+=h1 DEFAULT_CLASS
+
+To change columns using keywords
+
+    require Text::CGILike;
+    Text::CGILike->import(':standard');
+
+    require Term::Size;
+    my ($columns) = Term::Size::chars();
+    $columns ||= 80;
+
+    my ($TCGI) = Text::CGILike->DEFAULT_CLASS;
+    $TCGI->columns($columns);
+
+=cut
+
+my $_DEFAULT_CLASS;
 
 has 'columns' => (
-    is => 'ro',
+    is => 'rw',
     default => sub { 80 },
 );
 
-sub start_html { return "" }
-sub end_html { return "" }
+
+sub DEFAULT_CLASS {
+    return _self_or_default(shift);
+}
+
+
+sub start_html { 
+    my ($self, $text) = _self_or_default(@_);
+    $self->{_start_html} = $text;
+    return $self->hr . $self->_center("# "," #", $text) . $self->hr . "\n";
+}
+sub end_html { 
+    my ($self) = _self_or_default(@_);
+    my $text = $self->{_start_html} || "END";
+    return "\n" . $self->hr . $self->_center("# "," #", $text) . $self->hr;
+}
 
 sub h1 {
     my ($self, $title) = _self_or_default(@_);
     return 
-    $self->hr .
-    $self->_center("# ", " #", $title) .
-    $self->hr;
+    $self->_left("# ", $title) . $self->br();
 }
 
 sub hr {
@@ -51,7 +79,6 @@ sub hr {
 }
 
 sub br {
-    my ($self) = _self_or_default(@_);
     return "\n";
 }
 
@@ -62,7 +89,7 @@ sub center {
 
 sub ul {
     my ($self, @li) = _self_or_default(@_);
-    return join("", @li);
+    return join("", grep { defined } @li);
 }
 
 sub li {
@@ -79,8 +106,8 @@ sub _self_or_default {
     if (ref $may_class eq __PACKAGE__) {
         return ($may_class, @param);
     } else {
-        $CLASS_SINGLE ||= __PACKAGE__->new;
-        return ($CLASS_SINGLE, $may_class, @param);
+        $_DEFAULT_CLASS ||= __PACKAGE__->new;
+        return ($_DEFAULT_CLASS, $may_class, @param);
     }
 }
 
@@ -94,11 +121,24 @@ sub _center {
     my $TF = Text::Format->new({firstIndent => 0, bodyIndent => 0, columns => $size});
 
     my @texts = $TF->format($text);
-    return join("\n", map {
+    return join("", map {
         $_ = $TF->center($_);
         chomp;
         sprintf($left."%-".$size."s".$right."\n", $_);
     } @texts);
+
+}
+
+sub _left {
+    my $self = shift;
+    my ($left, $text) = @_;
+    $left = "" unless defined $left;
+
+    my $size = $self->columns - length($left);
+    my $TF = Text::Format->new({firstIndent => 0, bodyIndent => 0, columns => $size});
+
+    my @texts = $TF->format($text);
+    return $left . join("".$left, @texts);
 
 }
 
