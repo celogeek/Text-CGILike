@@ -1,4 +1,10 @@
-0.1 - 2012-05-06 18:15
+0.2 - 2012-06-05 14:30
+===
+
+    * add empty meta
+    * Add params for start_html
+
+0.1 - 2012-06-05 18:15
 ===
 
     * First version, no doc, very little, no test
