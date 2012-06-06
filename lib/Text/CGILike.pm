@@ -14,7 +14,7 @@ our (@ISA, @EXPORT, %EXPORT_TAGS);
 BEGIN {
     require Exporter;
 
-    my @html2 = qw/start_html end_html hr h1 ul li br/;
+    my @html2 = qw/start_html end_html hr h1 ul li br meta/;
     my @netscape = qw/center/;
 
     @ISA = qw(Exporter);
@@ -56,14 +56,27 @@ sub DEFAULT_CLASS {
 
 
 sub start_html { 
-    my ($self, $text) = _self_or_default(@_);
+    my ($self, @texts) = _self_or_default(@_);
+    my $text;
+    if (@texts > 1) {
+        my %p = @texts;
+        $text = $p{-title} || "";
+    } else {
+        ($text) = @texts;
+    }
     $self->{_start_html} = $text;
     return $self->hr . $self->_center("# "," #", $text) . $self->hr . "\n";
 }
+
 sub end_html { 
     my ($self) = _self_or_default(@_);
     my $text = $self->{_start_html} || "END";
     return "\n" . $self->hr . $self->_center("# "," #", $text) . $self->hr;
+}
+
+sub meta {
+    #no meta in text
+    return ""
 }
 
 sub h1 {
