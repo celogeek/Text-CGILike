@@ -167,5 +167,5 @@ L<CGI>
 
 Any bugs or evolution can be submit here :
 
-L<Github|https://github.com/geistteufel/Text-CGILike>
+L<Github|https://github.com/celogeek/Text-CGILike>
 
