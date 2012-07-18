@@ -109,38 +109,35 @@ sub _self_or_default {
 }
 
 sub _center {
-    my $self = shift;
-    my ( $left, $right, $text ) = @_;
-    $left  = "" unless defined $left;
-    $right = "" unless defined $right;
+    my ( $self, $left_pad, $right_pad, $text ) = @_;
+    $left_pad  = "" unless defined $left_pad;
+    $right_pad = "" unless defined $right_pad;
 
-    my $size = $self->columns - length($left) - length($right);
+    my $size = $self->columns - length($left_pad) - length($right_pad);
     my $TF   = Text::Format->new(
         { firstIndent => 0, bodyIndent => 0, columns => $size } );
 
     my @texts = $TF->format($text);
     return join(
         "",
-        map {
-            $_ = $TF->center($_);
-            chomp;
-            sprintf( $left . "%-" . $size . "s" . $right . "\n", $_ );
-        } @texts
+        map { sprintf( $left_pad . "%-" . $size . "s" . $right_pad . "\n", $_ ) }
+        map { do { chomp; $_ } }
+        map { $TF->center($_) }
+        @texts
     );
 
 }
 
 sub _left {
-    my $self = shift;
-    my ( $left, $text ) = @_;
-    $left = "" unless defined $left;
+    my ($self, $left_pad, $text ) = @_;
+    $left_pad = "" unless defined $left_pad;
 
-    my $size = $self->columns - length($left);
+    my $size = $self->columns - length($left_pad);
     my $TF   = Text::Format->new(
         { firstIndent => 0, bodyIndent => 0, columns => $size } );
 
     my @texts = $TF->format($text);
-    return $left . join( "" . $left, @texts );
+    return $left_pad . join( "" . $left_pad, @texts );
 
 }
 
@@ -200,27 +197,27 @@ my %EXPORT_MAP = (
     ':all' => [qw/:html2 :html3 :netscape :form :cgi :internal :html4/]
 );
 
+sub import { 
+    my ($self, $to_import_str) = @_;
+    my @to_import       = $to_import_str =~ /(:?\w+)/gx;
+    my $caller          = caller;
 
-sub import {    #EXPORT
-    my $self = shift;
-    my ($to_import_str) = @_;
-    my @to_import = $to_import_str =~ /(:?\w+)/gx;
-    my $caller = caller;
-    
-    for my $sym(_expand_arr(\%EXPORT_MAP, @to_import)) {
-        unless ($caller->can($sym)) {
+    for my $sym ( _expand_arr( \%EXPORT_MAP, @to_import ) ) {
+        unless ( $caller->can($sym) ) {
             my $meth = $self->can($sym) // sub {
-                carp "Missing tag : ",$sym;
-                return join('',@_);
+                carp "Missing tag : ", $sym;
+                return join( '', @_ );
             };
-            #warn "Defined > $caller > $sym > $meth";
+
             {
-                no strict 'refs';
+                ## no critic qw(ProhibitNoStrict)
+                no strict qw/refs/;
                 *{"${caller}::$sym"} = $meth;
+                ## use critic
             }
         }
-    };
-    
+    }
+
     return;
 }
 
