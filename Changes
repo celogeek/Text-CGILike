@@ -1,3 +1,7 @@
+{{$NEXT}}
+
+    Use Dist::Zilla::PluginBundle::Author::Celogeek v0.7
+
 0.3 - 2012-06-08 10:25
 ===
 
