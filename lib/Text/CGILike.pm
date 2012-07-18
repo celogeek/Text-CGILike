@@ -6,55 +6,9 @@ use strict;
 use warnings;
 use Moo;
 use Text::Format;
+use Carp;
 
 # VERSION
-
-BEGIN {
-    use parent 'Exporter';
-
-    %EXPORT_TAGS = (
-        ':html2' => [
-            'h1' .. 'h6', qw/p br hr ol ul li dl dt dd menu code var strong em
-              tt u i b blockquote pre img a address cite samp dfn html head
-              base body Link nextid title meta kbd start_html end_html
-              input Select option comment charset escapeHTML/
-        ],
-        ':html3' => [
-            qw/div table caption th td TR Tr sup Sub strike applet Param nobr
-              embed basefont style span layer ilayer font frameset frame script small big Area Map/
-        ],
-        ':html4' => [
-            qw/abbr acronym bdo col colgroup del fieldset iframe
-              ins label legend noframes noscript object optgroup Q
-              thead tbody tfoot/
-        ],
-        ':netscape' => [qw/blink fontsize center/],
-        ':form'     => [
-            qw/textfield textarea filefield password_field hidden checkbox checkbox_group
-              submit reset defaults radio_group popup_menu button autoEscape
-              scrolling_list image_button start_form end_form startform endform
-              start_multipart_form end_multipart_form isindex tmpFileName uploadInfo URL_ENCODED MULTIPART/
-        ],
-        ':cgi' => [
-            qw/param upload path_info path_translated request_uri url self_url script_name
-              cookie Dump
-              raw_cookie request_method query_string Accept user_agent remote_host content_type
-              remote_addr referer server_name server_software server_port server_protocol virtual_port
-              virtual_host remote_ident auth_type http append
-              save_parameters restore_parameters param_fetch
-              remote_user user_name header redirect import_names put
-              Delete Delete_all url_param cgi_error/
-        ],
-        ':ssl' => [qw/https/],
-        ':cgi-lib' =>
-          [qw/ReadParse PrintHeader HtmlTop HtmlBot SplitParam Vars/],
-        ':html'     => [qw/:html2 :html3 :html4 :netscape/],
-        ':standard' => [qw/:html2 :html3 :html4 :form :cgi/],
-        ':push' =>
-          [qw/multipart_init multipart_start multipart_end multipart_final/],
-        ':all' => [qw/:html2 :html3 :netscape :form :cgi :internal :html4/]
-    );
-}
 
 =attr DEFAULT_CLASS
 
@@ -188,6 +142,86 @@ sub _left {
     my @texts = $TF->format($text);
     return $left . join( "" . $left, @texts );
 
+}
+
+sub _expand_arr {
+    my ( $tags, @arr ) = @_;
+    my @res;
+    for my $tag (@arr) {
+        if ( substr( $tag, 0, 1 ) eq ':' ) {
+            push @res, _expand_arr( $tags, @{ $tags->{$tag} } );
+        }
+        else {
+            push @res, $tag;
+        }
+    }
+    return @res;
+}
+
+my %EXPORT_MAP = (
+    ':html2' => [
+        'h1' .. 'h6', qw/p br hr ol ul li dl dt dd menu code var strong em
+          tt u i b blockquote pre img a address cite samp dfn html head
+          base body Link nextid title meta kbd start_html end_html
+          input Select option comment charset escapeHTML/
+    ],
+    ':html3' => [
+        qw/div table caption th td TR Tr sup Sub strike applet Param nobr
+          embed basefont style span layer ilayer font frameset frame script small big Area Map/
+    ],
+    ':html4' => [
+        qw/abbr acronym bdo col colgroup del fieldset iframe
+          ins label legend noframes noscript object optgroup Q
+          thead tbody tfoot/
+    ],
+    ':netscape' => [qw/blink fontsize center/],
+    ':form'     => [
+        qw/textfield textarea filefield password_field hidden checkbox checkbox_group
+          submit reset defaults radio_group popup_menu button autoEscape
+          scrolling_list image_button start_form end_form startform endform
+          start_multipart_form end_multipart_form isindex tmpFileName uploadInfo URL_ENCODED MULTIPART/
+    ],
+    ':cgi' => [
+        qw/param upload path_info path_translated request_uri url self_url script_name
+          cookie Dump
+          raw_cookie request_method query_string Accept user_agent remote_host content_type
+          remote_addr referer server_name server_software server_port server_protocol virtual_port
+          virtual_host remote_ident auth_type http append
+          save_parameters restore_parameters param_fetch
+          remote_user user_name header redirect import_names put
+          Delete Delete_all url_param cgi_error/
+    ],
+    ':ssl'      => [qw/https/],
+    ':cgi-lib'  => [qw/ReadParse PrintHeader HtmlTop HtmlBot SplitParam Vars/],
+    ':html'     => [qw/:html2 :html3 :html4 :netscape/],
+    ':standard' => [qw/:html2 :html3 :html4 :form :cgi/],
+    ':push' =>
+      [qw/multipart_init multipart_start multipart_end multipart_final/],
+    ':all' => [qw/:html2 :html3 :netscape :form :cgi :internal :html4/]
+);
+
+
+sub import {    #EXPORT
+    my $self = shift;
+    my ($to_import_str) = @_;
+    my @to_import = $to_import_str =~ /(:?\w+)/gx;
+    my $caller = caller;
+    
+    for my $sym(_expand_arr(\%EXPORT_MAP, @to_import)) {
+        unless ($caller->can($sym)) {
+            my $meth = $self->can($sym) // sub {
+                carp "Missing tag : ",$sym;
+                return join('',@_);
+            };
+            #warn "Defined > $caller > $sym > $meth";
+            {
+                no strict 'refs';
+                *{"${caller}::$sym"} = $meth;
+            }
+        }
+    };
+    
+    return;
 }
 
 1;
