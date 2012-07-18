@@ -1,6 +1,8 @@
 {{$NEXT}}
 
     Use Dist::Zilla::PluginBundle::Author::Celogeek v0.7
+    Add pod
+    Export all tag like CGI
 
 0.3 - 2012-06-08 10:25
 ===
