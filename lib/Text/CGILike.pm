@@ -2,6 +2,16 @@ package Text::CGILike;
 
 # ABSTRACT: Wrapper to create text file using the CGI syntax
 
+=head1 OVERVIEW
+
+CGI is an old module, and now we can create html or text with a simple template.
+
+I have create this module to be able to format my email in html or text by just changing the module I use.
+
+So I don't use template in that case, just a simple '--format=text/html'
+
+=cut
+
 use strict;
 use warnings;
 use Moo;
@@ -33,10 +43,23 @@ has 'columns' => (
     default => sub { 80 },
 );
 
+=method DEFAULT_CLASS
+
+This singleton is use if you don't instanciate Text::CGILike
+
+=cut
 sub DEFAULT_CLASS {
     return _self_or_default(shift);
 }
 
+=method start_html
+
+Start the document, you can pass headers like CGI here. Only '-title' will be used.
+
+    start_html('my title');
+    start_html(-title => 'my title');
+
+=cut
 sub start_html {
     my ( $self, @texts ) = _self_or_default(@_);
     my $text;
@@ -51,43 +74,88 @@ sub start_html {
     return $self->hr . $self->_center( "# ", " #", $text ) . $self->hr . "\n";
 }
 
+=method end_html
+
+Finish the document.
+
+    end_html;
+
+=cut
+
 sub end_html {
     my ($self) = _self_or_default(@_);
     my $text = $self->{_start_html} || "END";
     return "\n" . $self->hr . $self->_center( "# ", " #", $text ) . $self->hr;
 }
 
+=method meta
+
+Completly ignore. no meta in brute text
+
+=cut
 sub meta {
 
     #no meta in text
     return "";
 }
 
+=method h1
+
+Create a box that define the bigger text.
+
+    h1('my big text');
+
+=cut
 sub h1 {
     my ( $self, $title ) = _self_or_default(@_);
     return $self->_left( "# ", $title ) . $self->br();
 }
 
+=method hr
+
+Create a row of '#' (horizontal rule)
+
+=cut
 sub hr {
     my ($self) = _self_or_default(@_);
 
     return "#" x ( $self->columns ) . "\n";
 }
 
+=method br
+
+break line
+
+=cut
 sub br {
     return "\n";
 }
 
+=method center
+
+center the text, and respect wrap of text
+
+=cut
 sub center {
     my ( $self, $text ) = _self_or_default(@_);
     return $self->_center( '', '', $text );
 }
 
+=method ul
+
+create list
+
+=cut
 sub ul {
     my ( $self, @li ) = _self_or_default(@_);
     return join( "", grep { defined } @li );
 }
 
+=method li
+
+do list starting with an asterix '*'
+
+=cut
 sub li {
     my ( $self, $li ) = _self_or_default(@_);
     my $TF = Text::Format->new(
@@ -197,6 +265,11 @@ my %EXPORT_MAP = (
     ':all' => [qw/:html2 :html3 :netscape :form :cgi :internal :html4/]
 );
 
+=method import
+
+Import tags. check L<CGI> for more information.
+
+=cut
 sub import { 
     my ($self, $to_import_str) = @_;
     my @to_import       = $to_import_str =~ /(:?\w+)/gx;
