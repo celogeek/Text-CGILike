@@ -4,7 +4,7 @@ Text::CGILike - Wrapper to create text file using the CGI syntax
 
 # VERSION
 
-version 0.4
+version 0.5
 
 # OVERVIEW
 
@@ -90,7 +90,7 @@ Import tags. check [CGI](http://search.cpan.org/perldoc?CGI) for more informatio
 # BUGS
 
 Please report any bugs or feature requests on the bugtracker website
-https://github.com/celogeek/Text-CGILike/issues
+http://tasks.celogeek.com/projects/perl-modules-text-cgilike
 
 When submitting a bug or request, please include a test-file or a
 patch to an existing test-file that illustrates the bug or desired
