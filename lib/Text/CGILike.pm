@@ -38,6 +38,11 @@ To change columns using keywords
 
 my $_DEFAULT_CLASS;
 
+=attr columns
+
+number of columns to use by default
+
+=cut
 has 'columns' => (
     is      => 'rw',
     default => sub { 80 },
