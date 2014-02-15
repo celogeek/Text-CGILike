@@ -4,7 +4,7 @@ Text::CGILike - Wrapper to create text file using the CGI syntax
 
 # VERSION
 
-version 0.5
+version 0.6
 
 # OVERVIEW
 
@@ -29,6 +29,10 @@ To change columns using keywords
 
     my ($TCGI) = Text::CGILike->DEFAULT_CLASS;
     $TCGI->columns($columns);
+
+## columns
+
+number of columns to use by default
 
 # METHODS
 
@@ -81,16 +85,16 @@ do list starting with an asterix '\*'
 
 ## import
 
-Import tags. check [CGI](http://search.cpan.org/perldoc?CGI) for more information.
+Import tags. check [CGI](https://metacpan.org/pod/CGI) for more information.
 
 # SEE ALSO
 
-[CGI](http://search.cpan.org/perldoc?CGI)
+[CGI](https://metacpan.org/pod/CGI)
 
 # BUGS
 
 Please report any bugs or feature requests on the bugtracker website
-http://tasks.celogeek.com/projects/perl-modules-text-cgilike
+https://github.com/celogeek/Text-CGILike/issues
 
 When submitting a bug or request, please include a test-file or a
 patch to an existing test-file that illustrates the bug or desired
@@ -102,7 +106,7 @@ celogeek <me@celogeek.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by celogeek <me@celogeek.com>.
+This software is copyright (c) 2014 by celogeek <me@celogeek.com>.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
